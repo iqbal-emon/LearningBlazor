@@ -51,8 +51,6 @@ namespace forPractice.Data
             }
             else
             {
-                // Handle the case where the member with the given ID is not found
-                // For example, you can throw an exception or return a specific result
                 throw new InvalidOperationException("Member not found");
             }
         }

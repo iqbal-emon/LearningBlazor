@@ -1,0 +1,43 @@
+﻿@page "/Task-Assign"
+@using forPractice.Data
+@inject TaskService TaskService
+
+<a href="./Add-Task">Add Task</a>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Task Description</th>
+                <th>Member Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (tasks != null && tasks.Any())
+            {
+                @foreach (var task in tasks)
+                {
+                    <tr>
+                        <td>@task.TaskDescription</td>
+                        <td>@task.Member?.Name</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="2">No tasks</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private List<TaskModel> tasks;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tasks = await TaskService.GetAllTaskAsync();
+    }
+}

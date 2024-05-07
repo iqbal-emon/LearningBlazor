@@ -1,0 +1,44 @@
+﻿@page "/Member-Task"
+@using forPractice.Data;
+@inject TaskService TaskService
+@inject IJSRuntime JS
+
+<h3>My tasks</h3>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Task Description</th>
+                <th>Deadline</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (taskModels != null)
+            {
+            @foreach (var task in taskModels)
+            {
+                <tr>
+                    <td>@task.TaskDescription</td>
+                    <td>@task.Deadline</td>
+                        <td contenteditable="true">@task.Status</td>
+
+                </tr>
+            }
+                
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private List<TaskModel> taskModels;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string Id = await JS.InvokeAsync<String>("localStorage.getItem", "id");
+        taskModels = await TaskService.GetMemberTask(Id);
+        await base.OnInitializedAsync();
+    }
+}

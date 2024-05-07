@@ -19,5 +19,6 @@ namespace forPractice.Data
 
 
         public DbSet<MemberModel> memberModels { get; set; }
+        public DbSet<TaskModel> taskModels { get; set; }
     }
 }

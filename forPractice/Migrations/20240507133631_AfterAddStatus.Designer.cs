@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using forPractice.Data;
 
@@ -11,9 +12,10 @@ using forPractice.Data;
 namespace forPractice.Migrations
 {
     [DbContext(typeof(addDbContex))]
-    partial class addDbContexModelSnapshot : ModelSnapshot
+    [Migration("20240507133631_AfterAddStatus")]
+    partial class AfterAddStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

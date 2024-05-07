@@ -14,6 +14,8 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<addDbContex>();
 builder.Services.AddSingleton<MemberServices>();
+builder.Services.AddSingleton<TaskService>();
+
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 

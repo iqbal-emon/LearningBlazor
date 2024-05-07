@@ -49,6 +49,10 @@
                 Name = memberAccount.Name,
                 Role = memberAccount.Role
             });
+
+        var userId = memberAccount.Id.ToString();
+
+        await js.InvokeVoidAsync("localStorage.setItem", "id", userId);
         navManager.NavigateTo("/", true);
  
 

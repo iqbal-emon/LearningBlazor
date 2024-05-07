@@ -20,6 +20,10 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/USER/source/repos/forPractice/forPractice/Pages/Add-Task.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRkLVRhc2sucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/USER/source/repos/forPractice/forPractice/Pages/AddMembers.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRkTWVtYmVycy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
@@ -44,8 +48,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9nSW4ucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/USER/source/repos/forPractice/forPractice/Pages/Member-task.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWVtYmVyLXRhc2sucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/USER/source/repos/forPractice/forPractice/Pages/MemberList.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWVtYmVyTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/source/repos/forPractice/forPractice/Pages/TaskAssign.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGFza0Fzc2lnbi5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/USER/source/repos/forPractice/forPractice/Pages/TestComponent.razor]

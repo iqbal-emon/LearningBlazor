@@ -1,0 +1,66 @@
+﻿@page "/Add-Task"
+@using forPractice.Data;
+@inject TaskService TaskService
+@inject MemberServices MemberServices
+@inject NavigationManager NavigationManger
+
+<div class="container mt-4">
+<h3>AddTask</h3>
+    <EditForm Model="taskModel" OnSubmit="SaveTask">
+        <div class="form-group">
+            <label for="MemberId">Member:</label>
+            <select class="form-control" id="MemberId" @bind="taskModel.MemberId">
+                <option value="">Select an option</option>
+                @foreach (var item in dropdownOptions)
+                {
+                    <option value="@item.Id">@item.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="TaskDescription">Task Description:</label>
+            <input type="text" class="form-control" id="TaskDescription" @bind="taskModel.TaskDescription">
+        </div>
+
+        <div class="form-group">
+            <label for="Deadline">Deadline:</label>
+            <input type="date" class="form-control" id="Deadline" @bind="taskModel.Deadline">
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2">Submit</button>
+    </EditForm>
+</div>
+
+
+@code {
+    public class DropdownOption
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public TaskModel taskModel = new TaskModel();
+
+    List<DropdownOption> dropdownOptions = new List<DropdownOption>();
+    int selectedOption;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var taskModels = await MemberServices.GetMembersAsync();
+        dropdownOptions = taskModels.Select(task => new DropdownOption
+            {
+                Id = task.Id, // Assuming TaskModel has an Id property
+                Name=task.Name
+            }).ToList();
+        base.OnInitialized();
+    }
+
+
+    protected async void SaveTask()
+    {
+        await TaskService.AddTask(taskModel);
+        NavigationManger.NavigateTo("./Task-Assign");
+    }
+
+}
