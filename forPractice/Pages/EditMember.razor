@@ -1,0 +1,18 @@
+﻿@using forPractice.Data;
+
+<h3>EditMember</h3>
+<EditForm Model="Member" OnSubmit="SaveMember">
+    <InputText class="form-control mt-2" @bind-Value="@Member.Name"></InputText>
+    <InputNumber class="form-control mt-2" @bind-Value="@Member.Age"></InputNumber>
+    <InputText class="form-control mt-2" @bind-Value="@Member.Email"></InputText>
+  <button type="submit"></button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public MemberModel Member { get; set; }
+    [Parameter]
+    public EventCallback SaveMember{ get; set; }
+
+}
+<EditMember />

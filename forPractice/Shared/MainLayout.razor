@@ -1,0 +1,52 @@
+﻿@inherits LayoutComponentBase
+﻿@using forPractice.Authentication
+@inject AuthenticationStateProvider authStateProvider
+@inject NavigationManager navManager
+<PageTitle>forPractice</PageTitle>
+
+<div class="page">
+        <AuthorizeView>
+            <Authorized>
+    <div class="sidebar">
+                <NavMenu />
+    </div>
+            </Authorized>
+        </AuthorizeView>
+
+    <main>
+        <div class="top-row px-4">
+            <AuthorizeView>
+                <Authorized>
+                    <!-- You can add sidebar-specific content here if needed -->
+            <button class="btn btn-danger" @onclick="Logout">Log out</button>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="/login">Login</a>
+                 
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+
+        <AuthorizeView>
+            <Authorized>
+                <!-- You can add sidebar-specific content here if needed -->
+        <article class="content px-4">
+            @Body
+        </article>
+            </Authorized>
+            <NotAuthorized>
+
+                <forPractice.Pages.LogIn />
+
+            </NotAuthorized>
+        </AuthorizeView>
+    </main>
+</div>
+@code {
+    private async Task Logout()
+    {
+        var customAuthStateProvider = (CustomAuthenticationStateProvider)authStateProvider;
+        await customAuthStateProvider.UpdateAuthenticationState(null);
+        navManager.NavigateTo("/", true);
+    }
+}

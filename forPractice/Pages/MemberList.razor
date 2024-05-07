@@ -1,0 +1,98 @@
+﻿@page "/MemberList"
+@using forPractice.Data
+@inject MemberServices memberServices
+@inject NavigationManager navigation
+@inject IJSRuntime JSRuntime
+
+<div class="container">
+   <div class="d-flex justify-content-between">
+    <h3>Member List</h3>
+        <input type="text" placeholder="Search by name" @oninput="SearchMembers" />
+
+
+   </div>
+    <a href="./AddMembers" class="btn btn-primary mb-3">Add Member</a>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Age</th>
+                    <th>Password</th>
+                    <th>Joining Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Members != null && Members.Any())
+                {
+                    @foreach (var member in Members)
+                    {
+                        <tr>
+                            <td>@member.Name</td>
+                            <td>@member.Email</td>
+                            <td>@member.Age</td>
+                            <td>@member.Password</td>
+                            <td>@member.JoiningDate.ToShortDateString()</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm mr-1" @onclick="() => DeleteMember(member.Id)">Delete</button>
+                                <button class="btn btn-primary btn-sm" @onclick="() => EditMember(member.Id)">Edit</button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6">No members found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+@code {
+    private List<MemberModel> Members;
+    private string searchQuery = "";
+    protected override async Task OnInitializedAsync()
+    {
+        Members = await memberServices.GetMembersAsync();
+        base.OnInitialized();
+    }
+
+    protected void DeleteMember(int memberberId)
+    {
+        memberServices.DeleteMemberByIdAsync(memberberId);
+        Members.RemoveAll(member => member.Id == memberberId);
+
+    }
+
+    protected void EditMember(int memberId)
+    {
+        navigation.NavigateTo($"./UpdateMember/{memberId}");
+    }
+    private async Task SearchMembers(ChangeEventArgs e)
+    {
+        searchQuery = e.Value.ToString();
+
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+            Members = (await memberServices.GetMembersAsync()).Where(m =>
+                m.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                m.Email.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                m.Age.ToString().Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                m.Password.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                m.JoiningDate.ToShortDateString().Contains(searchQuery, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+        else
+        {
+            Members = await memberServices.GetMembersAsync();
+        }
+    }
+
+
+}

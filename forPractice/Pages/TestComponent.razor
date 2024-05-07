@@ -1,0 +1,15 @@
+﻿@page "/TestPage/{Name}"
+@inject NavigationManager navigationManager
+
+
+<h3>TestComponent</h3>
+<button @onclick="CounterPageNavigation">Go to Counter Page</button>
+<h1 >@Name</h1>
+@code {
+    [Parameter]
+    public string? Name{ get; set; }
+    private void CounterPageNavigation()
+    {
+        navigationManager.NavigateTo("./");
+    }
+}

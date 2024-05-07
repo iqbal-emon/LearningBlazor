@@ -1,0 +1,70 @@
+﻿@page "/UpdateMember/{MemberId}"
+@using forPractice.Data;
+@inject MemberServices memberServices
+@inject NavigationManager navigationManager
+
+<div class="container">
+    <h3>Update Member</h3>
+    <EditForm Model="member" OnValidSubmit="HandleSubmit" class="mt-4">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <InputText class="form-control mb-2" @bind-Value="@member.Name" id="name"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="age">Age</label>
+            <InputNumber class="form-control mb-2" @bind-Value="@member.Age" id="age"></InputNumber>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <InputText class="form-control mb-2" @bind-Value="@member.Email" id="email"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <InputText class="form-control mb-2" @bind-Value="@member.Password" id="password"></InputText>
+        </div>
+        <button type="submit" class="btn btn-primary ">Update</button>
+    </EditForm>
+</div>
+
+
+@code {
+    [Parameter]
+    public string MemberId { get; set; } // Assuming MemberId is a string
+
+    private MemberModel member = new MemberModel(); // Initialize member here
+
+
+    private async Task HandleSubmit()
+    {
+
+        // Call the service method to update the member
+        await memberServices.UpdateMemberAsync(member);
+        navigationManager.NavigateTo("./MemberList");
+
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        // Call the service method with the parsed memberId
+        var dbMember = await memberServices.GetMemberByIdAsync(int.Parse(MemberId));
+
+        if (dbMember != null)
+        {
+            member = new MemberModel()
+            {
+                Id = dbMember.Id,
+                Name = dbMember.Name,
+                Age = dbMember.Age,
+                Email = dbMember.Email,
+                JoiningDate = dbMember.JoiningDate,
+                Password=dbMember.Password
+            };
+        }
+        else
+        {
+            // Handle the case where the member with the given ID is not found
+            // For example, you can redirect the user to an error page or display a message
+            // This depends on your application's requirements
+        }
+    }
+}
