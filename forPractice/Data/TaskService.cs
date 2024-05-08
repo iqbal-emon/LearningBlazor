@@ -54,5 +54,21 @@ namespace forPractice.Data
             }
         }
 
+
+        public async Task<bool> DeleteTaskByIdAsync(int TaskId)
+        {
+            var taskToDelete = await _dbContext.taskModels.FindAsync(TaskId);
+
+            if (taskToDelete != null)
+            {
+                _dbContext.taskModels.Remove(taskToDelete);
+                await _dbContext.SaveChangesAsync();
+               
+                return true;
+            }
+
+            return false;
+        }
+
     }
 }

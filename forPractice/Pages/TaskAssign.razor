@@ -10,6 +10,8 @@
             <tr>
                 <th>Task Description</th>
                 <th>Member Name</th>
+                <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -20,24 +22,77 @@
                     <tr>
                         <td>@task.TaskDescription</td>
                         <td>@task.Member?.Name</td>
+                        <td>@task.Status</td>
+                       
+                        <td>
+                            <button class="btn btn-danger btn-sm mr-1" @onclick="() => DeleteTask(task.Id)">Delete</button>
+                        </td>
+
                     </tr>
                 }
             }
             else
             {
                 <tr>
-                    <td colspan="2">No tasks</td>
+                    <td colspan="6">No tasks</td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
-
+<div class="modal" tabindex="-1" style="@ModalStyle">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal Title</h5>
+                <button type="button" class="btn-close" aria-label="Close" @onclick="HideModal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Modal Content Goes Here -->
+                Are you sure you want to proceed?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="HideModal">Cancel</button>
+                <button type="button" class="btn btn-danger" @onclick="DeleteConfirmed">Yes, Proceed</button>
+            </div>
+        </div>
+    </div>
+</div>
 @code {
     private List<TaskModel> tasks;
+    bool showModal = false;
 
+    private int taskIdToDelete;
     protected override async Task OnInitializedAsync()
     {
         tasks = await TaskService.GetAllTaskAsync();
     }
+
+
+    protected async Task DeleteTask(int taskId)
+    {
+        taskIdToDelete = taskId;
+        showModal = true;
+    }
+    private async Task DeleteConfirmed()
+    {
+        // Perform deletion
+        await TaskService.DeleteTaskByIdAsync(taskIdToDelete);
+
+        // Remove member from UI
+        tasks.RemoveAll(Task => Task.Id == taskIdToDelete);
+
+        taskIdToDelete = 0;
+        showModal = false;
+    }
+
+    void HideModal()
+    {
+        showModal = false;
+    }
+
+
+
+    string ModalStyle => showModal ? "display: block;" : "display: none;";
+
 }

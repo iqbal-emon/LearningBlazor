@@ -1,62 +1,85 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.JSInterop;
 
 namespace forPractice.Authentication
 {
-    public class CustomAuthenticationStateProvider: AuthenticationStateProvider
+    public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly ProtectedSessionStorage _sessionStorage;
         private ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
+        private const string UserSessionKey = "UserSession";
+        private readonly IJSRuntime _jsRuntime;
+        private readonly IDataProtector _dataProtector;
 
-        public CustomAuthenticationStateProvider(ProtectedSessionStorage sessionStorage)
+        public CustomAuthenticationStateProvider(IJSRuntime jsRuntime, IDataProtectionProvider dataProtectionProvider)
         {
-            _sessionStorage = sessionStorage;
+            _jsRuntime = jsRuntime;
+            _dataProtector = dataProtectionProvider.CreateProtector(typeof(CustomAuthenticationStateProvider).FullName);
         }
-   public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+
+        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             try
             {
-                //await Task.Delay(5000);
-                var userSessionStorageResult = await _sessionStorage.GetAsync<UserSession>("UserSession");
-                var userSession = userSessionStorageResult.Success ? userSessionStorageResult.Value : null;
+                var encryptedUserSessionJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", UserSessionKey);
+                var decryptedUserSessionJson = Decrypt(encryptedUserSessionJson);
+                var userSession = decryptedUserSessionJson != null ? JsonSerializer.Deserialize<UserSession>(decryptedUserSessionJson) : null;
+
                 if (userSession == null)
-                    return await Task.FromResult(new AuthenticationState(_anonymous));
+                    return new AuthenticationState(_anonymous);
+
                 var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, userSession.Name),
                     new Claim(ClaimTypes.Role, userSession.Role)
                 }, "CustomAuth"));
-                return await Task.FromResult(new AuthenticationState(claimsPrincipal));
+
+                return new AuthenticationState(claimsPrincipal);
             }
             catch
             {
-                return await Task.FromResult(new AuthenticationState(_anonymous));
+                return new AuthenticationState(_anonymous);
             }
         }
 
         public async Task UpdateAuthenticationState(UserSession userSession)
         {
-            ClaimsPrincipal claimsPrincipal;
-
+            string encryptedUserSessionJson = null;
             if (userSession != null)
             {
-                await _sessionStorage.SetAsync("UserSession", userSession);
-                claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
+                var userSessionJson = JsonSerializer.Serialize(userSession);
+                encryptedUserSessionJson = Encrypt(userSessionJson);
+            }
+
+            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", UserSessionKey, encryptedUserSessionJson);
+            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(userSession != null ?
+                new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, userSession.Name),
                     new Claim(ClaimTypes.Role, userSession.Role)
-                }));
-            }
-            else
-            {
-                await _sessionStorage.DeleteAsync("UserSession");
-                claimsPrincipal = _anonymous;
-            }
-
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
+                })) : _anonymous)));
         }
 
+        private string Encrypt(string input)
+        {
+            var protectedData = _dataProtector.Protect(Encoding.UTF8.GetBytes(input));
+            return Convert.ToBase64String(protectedData);
+        }
 
+        private string Decrypt(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return null;
+
+            var protectedData = Convert.FromBase64String(input);
+            var unprotectedData = _dataProtector.Unprotect(protectedData);
+            return Encoding.UTF8.GetString(unprotectedData);
+        }
     }
 }

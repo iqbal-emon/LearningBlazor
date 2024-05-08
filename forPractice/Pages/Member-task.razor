@@ -61,7 +61,7 @@
     private bool CheckStatusWithDelay(string expectedStatus, string currentStatus)
     {
         // Introduce a delay using Task.Delay before checking the condition
-        System.Threading.Thread.Sleep(1000); // Adjust the delay duration as needed
+        System.Threading.Thread.Sleep(5); // Adjust the delay duration as needed
 
         // Check if the current status matches the expected status
         return currentStatus == expectedStatus;

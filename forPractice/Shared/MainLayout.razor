@@ -2,6 +2,8 @@
 ﻿@using forPractice.Authentication
 @inject AuthenticationStateProvider authStateProvider
 @inject NavigationManager navManager
+@inject IJSRuntime js
+
 <PageTitle>forPractice</PageTitle>
 
 <div class="page">
@@ -21,7 +23,7 @@
             <button class="btn btn-danger" @onclick="Logout">Log out</button>
                 </Authorized>
                 <NotAuthorized>
-                    <a href="/login">Login</a>
+                  
                  
                 </NotAuthorized>
             </AuthorizeView>
@@ -49,6 +51,7 @@
     {
         var customAuthStateProvider = (CustomAuthenticationStateProvider)authStateProvider;
         await customAuthStateProvider.UpdateAuthenticationState(null);
+        await js.InvokeVoidAsync("localStorage.clear");
         navManager.NavigateTo("/", true);
     }
 }

@@ -7,7 +7,7 @@ namespace forPractice.Data
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int? Id { get; set; }
+        public int Id { get; set; }
         public string? TaskDescription { get; set; }
         public DateTime? Deadline { get; set; }
         public string? Status { get; set; } = "pending";
