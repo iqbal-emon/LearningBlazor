@@ -1,5 +1,6 @@
 using forPractice.Authentication;
 using forPractice.Data;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
@@ -15,6 +16,7 @@ builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<addDbContex>();
 builder.Services.AddSingleton<MemberServices>();
 builder.Services.AddSingleton<TaskService>();
+builder.Services.AddSignalR();
 
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
@@ -38,5 +40,11 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<Employeehub>("/Employeehub");
+
+
+});
 
 app.Run();

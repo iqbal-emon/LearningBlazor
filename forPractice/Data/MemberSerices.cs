@@ -1,21 +1,37 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TableDependency.SqlClient;
+using TableDependency.SqlClient.Base.EventArgs;
 
 namespace forPractice.Data
 {
     public class MemberServices
     {
+        private readonly IHubContext<Employeehub> _hubContext;
         private readonly addDbContex _dbContext;
+        private readonly SqlTableDependency<MemberModel> _dependency;
 
-        public MemberServices(addDbContex dbContext)
+        public MemberServices(addDbContex dbContext,IHubContext<Employeehub>hubContext)
         {
+            _hubContext = hubContext;
             _dbContext = dbContext;
+            _dependency = new SqlTableDependency<MemberModel>(dbContext.Database.GetDbConnection().ConnectionString, "TaskModels");
+            _dependency.OnChanged += Changed;
+            _dependency.Start();
+
+        }
+
+        private async void Changed(object sender, RecordChangedEventArgs<MemberModel> e)
+        {
+            var employees=await GetMembersAsync();
+            await _hubContext.Clients.All.SendAsync("RefreshEmployees", employees);
         }
 
         public async Task<List<MemberModel>> GetMembersAsync()
         {
-            return await _dbContext.memberModels.ToListAsync();
+            return await _dbContext.memberModels.AsNoTracking().ToListAsync();
         }
 
         public async Task<MemberModel> GetMemberByIdAsync(int memberId)

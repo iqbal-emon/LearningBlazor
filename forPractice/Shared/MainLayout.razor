@@ -27,12 +27,13 @@
             </AuthorizeView>
         </div>
 
+
         <AuthorizeView>
             <Authorized>
                 <!-- You can add sidebar-specific content here if needed -->
-        <article class="content px-4">
-            @Body
-        </article>
+                <article class="content px-4">
+                    @Body
+                </article>
             </Authorized>
             <NotAuthorized>
 
@@ -41,6 +42,7 @@
             </NotAuthorized>
         </AuthorizeView>
     </main>
+
 </div>
 @code {
     private async Task Logout()

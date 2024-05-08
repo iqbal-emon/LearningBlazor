@@ -37,7 +37,22 @@ namespace forPractice.Data
     }
 
 
+        public async Task UpdateStatusAsync(TaskModel taskModel)
+        {
+            var existingTask = await _dbContext.taskModels.FindAsync(taskModel.Id);
 
+            if (existingTask != null)
+            {
+                existingTask.Status = taskModel.Status;
+              
+
+                await _dbContext.SaveChangesAsync();
+            }
+            else
+            {
+                throw new InvalidOperationException("Task not found");
+            }
+        }
 
     }
 }

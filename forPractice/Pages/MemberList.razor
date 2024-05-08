@@ -1,16 +1,15 @@
 ﻿@page "/MemberList"
+@using Microsoft.AspNetCore.SignalR.Client
 @using forPractice.Data
 @inject MemberServices memberServices
 @inject NavigationManager navigation
 @inject IJSRuntime JSRuntime
 
 <div class="container">
-   <div class="d-flex justify-content-between">
-    <h3>Member List</h3>
+    <div class="d-flex justify-content-between">
+        <h3>Member List</h3>
         <input type="text" placeholder="Search by name" @oninput="SearchMembers" />
-
-
-   </div>
+    </div>
     <a href="./AddMembers" class="btn btn-primary mb-3">Add Member</a>
     <div class="table-responsive">
         <table class="table table-striped">
@@ -53,27 +52,41 @@
     </div>
 </div>
 
-
 @code {
     private List<MemberModel> Members;
     private string searchQuery = "";
+
+    private HubConnection hubConnection;
+
     protected override async Task OnInitializedAsync()
     {
         Members = await memberServices.GetMembersAsync();
-        base.OnInitialized();
+
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(navigation.ToAbsoluteUri("/Employeehub"))
+            .Build();
+        hubConnection.On<List<MemberModel>>("RefreshEmployees", async employees =>
+        {
+            Members = employees;
+            await InvokeAsync(StateHasChanged);
+        });
+
+
+        await hubConnection.StartAsync();
     }
 
-    protected void DeleteMember(int memberberId)
+    protected async Task DeleteMember(int memberId)
     {
-        memberServices.DeleteMemberByIdAsync(memberberId);
-        Members.RemoveAll(member => member.Id == memberberId);
-
+        await memberServices.DeleteMemberByIdAsync(memberId);
+        Members.RemoveAll(member => member.Id == memberId);
+        await hubConnection.SendAsync("RefreshEmployees", Members);
     }
 
     protected void EditMember(int memberId)
     {
         navigation.NavigateTo($"./UpdateMember/{memberId}");
     }
+
     private async Task SearchMembers(ChangeEventArgs e)
     {
         searchQuery = e.Value.ToString();
@@ -93,6 +106,4 @@
             Members = await memberServices.GetMembersAsync();
         }
     }
-
-
 }

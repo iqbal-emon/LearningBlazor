@@ -17,16 +17,14 @@
         <tbody>
             @if (taskModels != null)
             {
-            @foreach (var task in taskModels)
-            {
-                <tr>
-                    <td>@task.TaskDescription</td>
-                    <td>@task.Deadline</td>
-                        <td contenteditable="true">@task.Status</td>
-
-                </tr>
-            }
-                
+                @foreach (var task in taskModels)
+                {
+                    <tr>
+                        <td>@task.TaskDescription</td>
+                        <td>@task.Deadline</td>
+                        <td contenteditable="true" >@task.Status</td>
+                    </tr>
+                }
             }
         </tbody>
     </table>
@@ -37,8 +35,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        string Id = await JS.InvokeAsync<String>("localStorage.getItem", "id");
+        string Id = await JS.InvokeAsync<string>("localStorage.getItem", "id");
         taskModels = await TaskService.GetMemberTask(Id);
-        await base.OnInitializedAsync();
     }
+
+   
 }
