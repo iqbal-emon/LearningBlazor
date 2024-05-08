@@ -22,7 +22,19 @@
                     <tr>
                         <td>@task.TaskDescription</td>
                         <td>@task.Deadline</td>
-                        <td contenteditable="true" >@task.Status</td>
+                        <td>
+                            <select @onchange="(e) => UpdateStatus(e, task)">
+                                <option value="Pending" selected="@CheckStatusWithDelay("Pending", task.Status)">Pending</option>
+                                <option value="InProgress" selected="@CheckStatusWithDelay("InProgress", task.Status)">In Progress</option>
+                                <option value="Completed" selected="@CheckStatusWithDelay("Completed", task.Status)">Completed</option>
+                                <!-- Add more options as needed -->
+                            </select>
+                        </td>
+
+
+
+
+
                     </tr>
                 }
             }
@@ -39,5 +51,21 @@
         taskModels = await TaskService.GetMemberTask(Id);
     }
 
-   
+    private async Task UpdateStatus(ChangeEventArgs e, TaskModel task)
+    {
+        string selectedValue = e.Value.ToString();
+        task.Status = selectedValue; // Update the status of the task
+        await TaskService.UpdateStatusAsync(task);
+        // You can perform further actions based on the selected value here
+    }
+    private bool CheckStatusWithDelay(string expectedStatus, string currentStatus)
+    {
+        // Introduce a delay using Task.Delay before checking the condition
+        System.Threading.Thread.Sleep(1000); // Adjust the delay duration as needed
+
+        // Check if the current status matches the expected status
+        return currentStatus == expectedStatus;
+    }
+
+
 }
