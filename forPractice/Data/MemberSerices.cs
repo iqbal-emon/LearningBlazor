@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TableDependency.SqlClient;
 using TableDependency.SqlClient.Base.EventArgs;
@@ -13,19 +15,23 @@ namespace forPractice.Data
         private readonly addDbContex _dbContext;
         private readonly SqlTableDependency<MemberModel> _dependency;
 
-        public MemberServices(addDbContex dbContext,IHubContext<Employeehub>hubContext)
+        public MemberServices(addDbContex dbContext, IHubContext<Employeehub> hubContext)
         {
             _hubContext = hubContext;
             _dbContext = dbContext;
             _dependency = new SqlTableDependency<MemberModel>(dbContext.Database.GetDbConnection().ConnectionString, "TaskModels");
             _dependency.OnChanged += Changed;
             _dependency.Start();
-
         }
 
         private async void Changed(object sender, RecordChangedEventArgs<MemberModel> e)
         {
-            var employees=await GetMembersAsync();
+            await SendUpdateToClients();
+        }
+
+        private async Task SendUpdateToClients()
+        {
+            var employees = await GetMembersAsync();
             await _hubContext.Clients.All.SendAsync("RefreshEmployees", employees);
         }
 
@@ -39,14 +45,11 @@ namespace forPractice.Data
             return await _dbContext.memberModels.FirstOrDefaultAsync(m => m.Id == memberId);
         }
 
-
-
-
         public async Task AddMemberAsync(MemberModel newMember)
         {
             _dbContext.memberModels.Add(newMember);
-    
             await _dbContext.SaveChangesAsync();
+            await SendUpdateToClients();
         }
 
         public async Task UpdateMemberAsync(MemberModel updatedMember)
@@ -64,6 +67,7 @@ namespace forPractice.Data
 
                 // Save the changes to the database
                 await _dbContext.SaveChangesAsync();
+                await SendUpdateToClients();
             }
             else
             {
@@ -71,22 +75,15 @@ namespace forPractice.Data
             }
         }
 
-
-
-
-
-
-
         public async Task<bool> DeleteMemberByIdAsync(int memberId)
         {
             var memberToDelete = await _dbContext.memberModels.FindAsync(memberId);
 
-    
             if (memberToDelete != null)
             {
                 _dbContext.memberModels.Remove(memberToDelete);
-            
                 await _dbContext.SaveChangesAsync();
+                await SendUpdateToClients();
                 return true;
             }
 
@@ -97,9 +94,5 @@ namespace forPractice.Data
         {
             return _dbContext.memberModels.FirstOrDefault(x => x.Name == userName);
         }
-
-
-
-
     }
 }

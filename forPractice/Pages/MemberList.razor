@@ -52,10 +52,31 @@
     </div>
 </div>
 
+
+<div class="modal" tabindex="-1" style="@ModalStyle">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal Title</h5>
+                <button type="button" class="btn-close" aria-label="Close" @onclick="HideModal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Modal Content Goes Here -->
+                Are you sure you want to proceed?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="HideModal">Cancel</button>
+                <button type="button" class="btn btn-danger" @onclick="DeleteConfirmed">Yes, Proceed</button>
+            </div>
+        </div>
+    </div>
+</div>
 @code {
     private List<MemberModel> Members;
     private string searchQuery = "";
-
+    private bool confirm=false;
+    bool showModal = false;
+    private int memberIdToDelete;
     private HubConnection hubConnection;
 
     protected override async Task OnInitializedAsync()
@@ -77,11 +98,25 @@
 
     protected async Task DeleteMember(int memberId)
     {
-        await memberServices.DeleteMemberByIdAsync(memberId);
-        Members.RemoveAll(member => member.Id == memberId);
-        await hubConnection.SendAsync("RefreshEmployees", Members);
+        memberIdToDelete = memberId;
+        showModal = true;
     }
 
+    private async Task DeleteConfirmed()
+    {
+        // Perform deletion
+        await memberServices.DeleteMemberByIdAsync(memberIdToDelete);
+
+        // Remove member from UI
+        Members.RemoveAll(member => member.Id == memberIdToDelete);
+
+        // Send signal to update other clients
+        await hubConnection.SendAsync("RefreshEmployees", Members);
+
+        // Reset variables
+        memberIdToDelete = 0;
+        showModal = false;
+    }
     protected void EditMember(int memberId)
     {
         navigation.NavigateTo($"./UpdateMember/{memberId}");
@@ -106,4 +141,16 @@
             Members = await memberServices.GetMembersAsync();
         }
     }
+
+
+
+    void HideModal()
+    {
+        showModal = false;
+    }
+
+    
+
+    string ModalStyle => showModal ? "display: block;" : "display: none;";
+}
 }
