@@ -11,6 +11,7 @@
             <Authorized>
     <div class="sidebar">
                 <NavMenu />
+            <button class="btn btn-danger" @onclick="Logout">Log out</button>
     </div>
             </Authorized>
         </AuthorizeView>
@@ -20,7 +21,6 @@
             <AuthorizeView>
                 <Authorized>
                     <!-- You can add sidebar-specific content here if needed -->
-            <button class="btn btn-danger" @onclick="Logout">Log out</button>
                 </Authorized>
                 <NotAuthorized>
                   
